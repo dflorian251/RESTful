@@ -35,6 +35,6 @@ class AuthController extends Controller
     {
         $email = $request->input('email');
         $password = $request->input('password');
-        return 'Doyleyei';
+        return 'User signin...';
     }
 }

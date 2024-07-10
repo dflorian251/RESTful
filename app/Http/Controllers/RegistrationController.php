@@ -13,7 +13,22 @@ class RegistrationController extends Controller
     {
         $meeting_id = $request->input('meeting_id');
         $user_id = $request->input('user_id');
-        return 'Doyleuei bro!';
+
+        $registration = [
+            'meeting_id' => $meeting_id,
+            'user_id' => $user_id,
+            'delete registration' => [
+                'href' => 'api/v1/{dummy url shit}',
+                'method' => 'DELETE'
+            ]
+        ];
+
+        $response = [
+            'msg' => 'Registration created.',
+            'registration' => $registration
+        ];
+
+        return response()->json($response, 201);
     }
 
     /**
@@ -21,6 +36,15 @@ class RegistrationController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $response = [
+            'msg' => 'Registration deleted.',
+            'create registration' => [
+                'href' => 'api/v1/{dummy url shit}',
+                'method' => 'POST',
+                'params' => 'meeting_id, user_id'
+            ]
+        ];
+
+        return response()->json($response, 200);
     }
 }
