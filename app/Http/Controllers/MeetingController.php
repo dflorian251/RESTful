@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Meeting;
 use Illuminate\Http\Request;
 
 class MeetingController extends Controller
@@ -16,7 +17,20 @@ class MeetingController extends Controller
      */
     public function index()
     {
-        return 'Hello world';
+        $meetings = Meeting::all();
+        foreach ($meetings as $meeting) {
+            $meeting->view_meeting = [
+                'href' => 'api/v1/meeting/' . $meeting->id,
+                'method' => 'GET'
+            ];
+        }
+
+        $response = [
+            'msg' => 'List of all Meetings',
+            'meetings' => $meetings
+        ];
+
+        return response()->json($response, 200);
     }
 
     /**
@@ -33,26 +47,35 @@ class MeetingController extends Controller
 
         $title = $validated['title'];
         $description = $validated['description'];
-        $time = $validated['time'];
+        $time = \DateTime::createFromFormat('d-m-Y H:i', $validated['time']);
         $user_id = $validated['user_id'];
 
-        $meeting = [
+        $meeting = new Meeting([
             'title' => $title,
             'description' => $description,
             'time' => $time,
-            'user_id' => $user_id,
-            'view_meeting' => [
-                'href' => 'api/v1/meeting/{dummyId}',
+            'user_id' => $user_id
+        ]);
+
+        if ($meeting->save()) {
+            $meeting->view_meeting =  [
+                'href' => 'api/v1/meeting/' . $meeting->id,
                 'method' => 'GET'
-            ]
-        ];
+            ];
+
+            $response = [
+                'msg' => 'Meeting created.',
+                'meeting' => $meeting
+            ];
+
+            return response()->json($response, 201);
+        }
 
         $response = [
-            'msg' => 'Meeting created.',
-            'meeting' => $meeting
+            'msg' => 'An error occurred.'
         ];
 
-        return response()->json($response, 201);
+        return response()->json($response, 404);
     }
 
     /**
@@ -60,7 +83,14 @@ class MeetingController extends Controller
      */
     public function show(string $id)
     {
-        return $id;
+        $meeting = Meeting::find($id);
+
+        $response = [
+            'msg' => 'Meeting with ID=' . $meeting->id . ' retrieved.',
+            'meeting' => $meeting
+        ];
+
+        return response()->json($response, 200);
     }
 
     /**
@@ -71,28 +101,35 @@ class MeetingController extends Controller
         $validated = $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'time' => 'required|date_format:d-m-Y H:i',
-            'user_id' => 'required'
+            'time' => 'required|date_format:d-m-Y H:i'
         ]);
 
         $title = $validated['title'];
         $description = $validated['description'];
-        $time = $validated['time'];
-        $user_id = $validated['user_id'];
+        $time = \DateTime::createFromFormat('d-m-Y H:i', $validated['time']);
 
-        $meeting = [
-            'title' => $title,
-            'description' => $description,
-            'time' => $time,
-            'user_id' => $user_id,
-            'view_meeting' => [
-                'href' => 'api/v1/meeting/{dummyId}',
+        $meeting = Meeting::find($id);
+
+        $meeting->title = $title;
+        $meeting->description = $description;
+        $meeting->time = $time;
+
+        if ($meeting->save()) {
+            $meeting->view_meeting =  [
+                'href' => 'api/v1/meeting/' . $meeting->id,
                 'method' => 'GET'
-            ]
-        ];
+            ];
+
+            $response = [
+                'msg' => 'Meeting successfully updated.',
+                'meeting' => $meeting
+            ];
+
+            return response()->json($response, 201);
+        }
 
         $response = [
-            'msg' => 'Meeting updated.',
+            'msg' => 'An error occurred.',
             'meeting' => $meeting
         ];
 
@@ -104,15 +141,25 @@ class MeetingController extends Controller
      */
     public function destroy(string $id)
     {
+        $meeting = Meeting::find($id);
+
+        if ($meeting->delete()) {
+            $response = [
+                'msg' => 'Meeting succefully deleted.',
+                'create_meeting' => [
+                    'href' => 'api/v1/meeting',
+                    'method' => 'POST',
+                    'params' => 'title, description, time, user_id'
+                ]
+            ];
+
+            return response()->json($response, 200);
+        }
+
         $response = [
-            'msg' => 'Meeting deleted.',
-            'create' => [
-                'href' => 'api/v1/meeting',
-                'method' => 'POST',
-                'params' => 'title, description, time'
-            ]
+            'msg' => 'An erro occurred.'
         ];
 
-        return response()->json($response, 200);
+        return response()->json($response, 202);
     }
 }
