@@ -47,7 +47,8 @@ class MeetingController extends Controller
 
         $title = $validated['title'];
         $description = $validated['description'];
-        $time = \DateTime::createFromFormat('d-m-Y H:i', $validated['time']);
+        $datetime = \DateTime::createFromFormat('d-m-Y H:i', $validated['time']);
+        $time = $datetime->format('Y-m-d H:i:s');
         $user_id = $validated['user_id'];
 
         $meeting = new Meeting([
@@ -58,6 +59,7 @@ class MeetingController extends Controller
         ]);
 
         if ($meeting->save()) {
+            $meeting->users()->attach($user_id);
             $meeting->view_meeting =  [
                 'href' => 'api/v1/meeting/' . $meeting->id,
                 'method' => 'GET'
@@ -83,10 +85,15 @@ class MeetingController extends Controller
      */
     public function show(string $id)
     {
-        $meeting = Meeting::find($id);
+        $meeting = Meeting::with('users')->where('id', $id)->firstOrFail();
+
+        $meeting->view_meetings = [
+            'href' => '/api/v1/meeting',
+            'method' => 'GET'
+        ];
 
         $response = [
-            'msg' => 'Meeting with ID=' . $meeting->id . ' retrieved.',
+            'msg' => 'Meeting retrieved.',
             'meeting' => $meeting
         ];
 
@@ -101,14 +108,22 @@ class MeetingController extends Controller
         $validated = $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'time' => 'required|date_format:d-m-Y H:i'
+            'time' => 'required|date_format:d-m-Y H:i',
+            'user_id' => 'required'
         ]);
 
         $title = $validated['title'];
         $description = $validated['description'];
         $time = \DateTime::createFromFormat('d-m-Y H:i', $validated['time']);
+        $user_id = $validated['user_id'];
 
-        $meeting = Meeting::find($id);
+        $meeting = Meeting::with('users')->findOrFail($id);
+
+        if (!$meeting->users()->where('users.id', $user_id)->first()) {
+            return response()->json([
+                'msg' => 'User not registred for meeting. Update not successful.'
+            ], 401);
+        }
 
         $meeting->title = $title;
         $meeting->description = $description;

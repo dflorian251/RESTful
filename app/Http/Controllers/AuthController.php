@@ -29,7 +29,7 @@ class AuthController extends Controller
             $user->signin = [
                 'href' => 'api/v1/user/signin',
                 'method' => 'GET',
-                'params' => 'name, email, password'
+                'params' => 'email, password'
             ];
 
             $response = [

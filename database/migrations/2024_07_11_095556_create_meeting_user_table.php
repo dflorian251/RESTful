@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('meeting_user', function (Blueprint $table) {
             $table->increments('id');
-            $table->dateTime('time');
-            $table->integer('user_id');
-            $table->integer('meeting_id');
+            $table->unsignedInteger('meeting_id'); // Change to integer
+            $table->unsignedInteger('user_id'); // Change to integer
             $table->timestamps();
+
+            // Foreign key constraints
+            $table->foreign('meeting_id')->references('id')->on('meetings')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
