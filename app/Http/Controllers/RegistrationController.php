@@ -25,7 +25,8 @@ class RegistrationController extends Controller
             'user_id' => $user_id,
             'delete registration' => [
                 'href' => 'api/v1/registration/meeting_id',
-                'method' => 'DELETE'
+                'method' => 'DELETE',
+                'params' => 'meeting_id'
             ]
         ];
 
