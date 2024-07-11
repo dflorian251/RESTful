@@ -12,19 +12,19 @@ Route::get('/welcome', function (Request $request) {
 });
 // ->middleware('auth:sanctum');
 
+// Route::controller(MeetingController::class)->group(function() {
+//     Route::get('/meeting', 'index');
+//     Route::post('/meeting', 'store');
+//     Route::get('/meeting/{id}' , 'show');
+//     Route::put('/meeting/{id}' , 'update');
+//     Route::delete('/meeting/{id}' , 'destroy');
+// });
 
-
-Route::controller(MeetingController::class)->group(function() {
-    Route::get('/meeting' , 'index');
-    Route::post('/meeting' , 'store');
-    Route::get('/meeting/{id}' , 'show');
-    Route::put('/meeting/{id}' , 'update');
-    Route::delete('/meeting/{id}' , 'destroy');
-});
+Route::apiResource('/meeting', MeetingController::class);
 
 Route::controller(AuthController::class)->group(function() {
     Route::post('/user', 'store');
-    Route::get('/user/{email}&{password}', 'signin');
+    Route::post('/user/{email}&{password}', 'signin');
 });
 
 Route::controller(RegistrationController::class)->group(function() {

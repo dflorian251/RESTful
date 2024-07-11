@@ -24,10 +24,18 @@ class MeetingController extends Controller
      */
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+            'time' => 'required', //|date_format:l, d-M-y H:i:s T
+            'user_id' => 'required'
+        ]);
+
         $title = $request->input('title');
         $description = $request->input('description');
         $time = $request->input('time');
         $user_id = $request->input('user_id');
+
 
         $meeting = [
             'title' => $title,
@@ -61,10 +69,19 @@ class MeetingController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // $validated = $request->validate([
+        //     'title' => 'required',
+        //     'description' => 'required|min:10',
+        //     'time' => 'required|date_format:l, d-M-y H:i:s T',
+        //     'user_id' => 'required'
+        // ]);
+
         $title = $request->input('title');
         $description = $request->input('description');
         $time = $request->input('time');
         $user_id = $request->input('user_id');
+
+
 
         $meeting = [
             'title' => $title,
