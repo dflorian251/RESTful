@@ -44,4 +44,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function meetings() {
+        return $this->belongsToMany('App\Models\Meeting');
+    }
 }
