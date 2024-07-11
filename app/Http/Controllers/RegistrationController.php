@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Meeting;
+use App\Models\User;
 
 class RegistrationController extends Controller
 {
@@ -20,18 +22,38 @@ class RegistrationController extends Controller
         $meeting_id = $validated['meeting_id'];
         $user_id = $validated['user_id'];
 
+        $meeting = Meeting::findOrFail($meeting_id);
+        $user = User::findOrFail($user_id);
+
+        $response = [
+            'msg' => 'User is alreay registered for this meeting.',
+            'user' => $user_id,
+            'meeting' => $meeting_id,
+            'unregister' => [
+                'href' => 'api/v1/registration/' . $meeting->id,
+                'method' => 'DELETE',
+                'params' => 'meeting_id, user_id'
+            ]
+        ];
+
+        if ($meeting->users()->where('user_id', $user_id)->first()) {
+            return response()->json($response, 404);
+        }
+
+        $user->meetings()->attach($meeting);
+
         $registration = [
             'meeting_id' => $meeting_id,
             'user_id' => $user_id,
-            'delete registration' => [
-                'href' => 'api/v1/registration/meeting_id',
+            'unregister' => [
+                'href' => 'api/v1/registration/' . $meeting_id,
                 'method' => 'DELETE',
-                'params' => 'meeting_id'
+                'params' => 'meeting_id, user_id'
             ]
         ];
 
         $response = [
-            'msg' => 'Registration created.',
+            'msg' => 'Registration completed.',
             'registration' => $registration
         ];
 
