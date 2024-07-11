@@ -11,14 +11,20 @@ class RegistrationController extends Controller
      */
     public function store(Request $request)
     {
-        $meeting_id = $request->input('meeting_id');
-        $user_id = $request->input('user_id');
+
+        $validated = $request->validate([
+            'meeting_id' => 'required',
+            'user_id' => 'required'
+        ]);
+
+        $meeting_id = $validated['meeting_id'];
+        $user_id = $validated['user_id'];
 
         $registration = [
             'meeting_id' => $meeting_id,
             'user_id' => $user_id,
             'delete registration' => [
-                'href' => 'api/v1/{dummy url shit}',
+                'href' => 'api/v1/registration/meeting_id',
                 'method' => 'DELETE'
             ]
         ];
@@ -39,7 +45,7 @@ class RegistrationController extends Controller
         $response = [
             'msg' => 'Registration deleted.',
             'create registration' => [
-                'href' => 'api/v1/{dummy url shit}',
+                'href' => 'api/v1/registration',
                 'method' => 'POST',
                 'params' => 'meeting_id, user_id'
             ]

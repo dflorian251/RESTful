@@ -12,22 +12,13 @@ Route::get('/welcome', function (Request $request) {
 });
 // ->middleware('auth:sanctum');
 
-// Route::controller(MeetingController::class)->group(function() {
-//     Route::get('/meeting', 'index');
-//     Route::post('/meeting', 'store');
-//     Route::get('/meeting/{id}' , 'show');
-//     Route::put('/meeting/{id}' , 'update');
-//     Route::delete('/meeting/{id}' , 'destroy');
-// });
-
 Route::apiResource('/meeting', MeetingController::class);
 
-Route::controller(AuthController::class)->group(function() {
-    Route::post('/user', 'store');
-    Route::post('/user/{email}&{password}', 'signin');
-});
+Route::apiResource('/user', AuthController::class);
 
-Route::controller(RegistrationController::class)->group(function() {
-    Route::post('/registration', 'store');
-    Route::delete('/registration/{id}', 'destroy');
-});
+// Route::controller(RegistrationController::class)->group(function() {
+//     Route::post('/registration', 'store');
+//     Route::delete('/registration/{id}', 'destroy');
+// });
+
+Route::apiResource('/registration', RegistrationController::class);

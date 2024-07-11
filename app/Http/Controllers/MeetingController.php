@@ -27,15 +27,14 @@ class MeetingController extends Controller
         $validated = $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'time' => 'required', //|date_format:l, d-M-y H:i:s T
+            'time' => 'required|date_format:d-m-Y H:i',
             'user_id' => 'required'
         ]);
 
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $time = $request->input('time');
-        $user_id = $request->input('user_id');
-
+        $title = $validated['title'];
+        $description = $validated['description'];
+        $time = $validated['time'];
+        $user_id = $validated['user_id'];
 
         $meeting = [
             'title' => $title,
@@ -69,19 +68,17 @@ class MeetingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // $validated = $request->validate([
-        //     'title' => 'required',
-        //     'description' => 'required|min:10',
-        //     'time' => 'required|date_format:l, d-M-y H:i:s T',
-        //     'user_id' => 'required'
-        // ]);
+        $validated = $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+            'time' => 'required|date_format:d-m-Y H:i',
+            'user_id' => 'required'
+        ]);
 
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $time = $request->input('time');
-        $user_id = $request->input('user_id');
-
-
+        $title = $validated['title'];
+        $description = $validated['description'];
+        $time = $validated['time'];
+        $user_id = $validated['user_id'];
 
         $meeting = [
             'title' => $title,
