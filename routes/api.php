@@ -14,17 +14,38 @@ Route::get('/welcome', function (Request $request) {
 
 Route::apiResource('/meeting', MeetingController::class);
 
-Route::apiResource('/user', AuthController::class);
+// Route::apiResource('/user', AuthController::class);
 
-// Route::controller(RegistrationController::class)->group(function() {
-//     Route::post('/registration', 'store');
-//     Route::delete('/registration/{id}', 'destroy');
+Route::controller(RegistrationController::class)->group(function() {
+    Route::post('/registration', 'store');
+    Route::delete('/registration/{id}', 'destroy');
+});
+// Route::group([
+//     'middleware' => 'api',
+//     'prefix' => 'auth'
+// ], function() {
+//     Route::apiResource('/registration', RegistrationController::class)->middleware('auth.api');
 // });
-Route::apiResource('/registration', RegistrationController::class);
 
 Route::controller(AuthController::class)->group(function() {
     Route::post('/user', 'store');
     Route::post('/user/signin', 'signin');
 });
 
+
+// <?php
+
+// use Illuminate\Support\Facades\Route;
+// use App\Http\Controllers\AuthController;
+
+// Route::group([
+//     'middleware' => 'api',
+//     'prefix' => 'auth'
+// ], function ($router) {
+//     Route::post('/register', [AuthController::class, 'register'])->name('register');
+//     Route::post('/login', [AuthController::class, 'login'])->name('login');
+//     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api')->name('logout');
+//     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
+//     Route::post('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
+// });
 

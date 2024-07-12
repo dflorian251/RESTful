@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Meeting;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class MeetingController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('name');
+        // $this->middleware('jwt.auth');
     }
 
     /**
@@ -38,24 +39,27 @@ class MeetingController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['msg' => 'User not found', 404]);
+        }
+
         $validated = $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'time' => 'required|date_format:d-m-Y H:i',
-            'user_id' => 'required'
+            'time' => 'required|date_format:d-m-Y H:i'
         ]);
 
         $title = $validated['title'];
         $description = $validated['description'];
         $datetime = \DateTime::createFromFormat('d-m-Y H:i', $validated['time']);
         $time = $datetime->format('Y-m-d H:i:s');
-        $user_id = $validated['user_id'];
+        $user_id = $user->id;
 
         $meeting = new Meeting([
             'title' => $title,
             'description' => $description,
             'time' => $time,
-            'user_id' => $user_id
+            'user_id' => $user->id
         ]);
 
         if ($meeting->save()) {
@@ -67,7 +71,7 @@ class MeetingController extends Controller
 
             $response = [
                 'msg' => 'Meeting created.',
-                'meeting' => $meeting
+                'meeting' => $meeting,
             ];
 
             return response()->json($response, 201);
@@ -105,17 +109,20 @@ class MeetingController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!$user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['msg' => 'User not found', 404]);
+        }
+
         $validated = $request->validate([
             'title' => 'required',
             'description' => 'required',
             'time' => 'required|date_format:d-m-Y H:i',
-            'user_id' => 'required'
         ]);
 
         $title = $validated['title'];
         $description = $validated['description'];
         $time = \DateTime::createFromFormat('d-m-Y H:i', $validated['time']);
-        $user_id = $validated['user_id'];
+        $user_id = $user->id;
 
         $meeting = Meeting::with('users')->findOrFail($id);
 
@@ -157,6 +164,15 @@ class MeetingController extends Controller
     public function destroy(string $id)
     {
         $meeting = Meeting::findOrFail($id);
+        if (!$user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['msg' => 'User not found', 404]);
+        }
+        if (!$meeting->users()->where('users.id', $user->id)->first()) {
+            return response()->json([
+                'msg' => 'User not registred for meeting. Update not successful.'
+            ], 401);
+        }
+
         $users = $meeting->users;
         $meeting->users()->detach();
         if ($meeting->delete()) {

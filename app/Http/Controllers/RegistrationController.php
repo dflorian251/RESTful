@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Meeting;
 use App\Models\User;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class RegistrationController extends Controller
 {
@@ -46,7 +48,7 @@ class RegistrationController extends Controller
             'meeting_id' => $meeting_id,
             'user_id' => $user_id,
             'unregister' => [
-                'href' => 'api/v1/registration/' . $meeting_id,
+                'href' => 'api/v1/registration/' . $meeting->id,
                 'method' => 'DELETE',
                 'params' => 'meeting_id, user_id'
             ]
@@ -60,13 +62,28 @@ class RegistrationController extends Controller
         return response()->json($response, 201);
     }
 
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
+        $meeting = Meeting::findOrFail($id);
+        if (!$user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['msg' => 'User not found', 404]);
+        }
+        if (!$meeting->users()->where('users.id', $user->id)->first()) {
+            return response()->json([
+                'msg' => 'User not registred for meeting. Delete operation not successful.'
+            ], 401);
+        }
+
+        $meeting->users()->detach($user->id);
+
         $response = [
             'msg' => 'Registration deleted.',
+            'meeting' => $meeting,
+            'user' => $user,
             'create registration' => [
                 'href' => 'api/v1/registration',
                 'method' => 'POST',

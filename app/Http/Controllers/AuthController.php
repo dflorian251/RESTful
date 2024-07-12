@@ -57,9 +57,6 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $email = $validated['email'];
-        $password = $validated['password'];
-
         $credentials = $request->only('email', 'password');
 
         try {
@@ -70,6 +67,10 @@ class AuthController extends Controller
             return response()->json(['msg' => 'Could not create token. ' . $e->getMessage()], 500);
         }
 
-        return response()->json(['token' => $token], 200);
+        return response()->json([
+            'msg' => 'Successful sign in.',
+            'user' => auth()->user(),
+            'token' => $token
+        ], 200);
     }
 }
