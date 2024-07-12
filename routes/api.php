@@ -20,5 +20,11 @@ Route::apiResource('/user', AuthController::class);
 //     Route::post('/registration', 'store');
 //     Route::delete('/registration/{id}', 'destroy');
 // });
-
 Route::apiResource('/registration', RegistrationController::class);
+
+Route::controller(AuthController::class)->group(function() {
+    Route::post('/user', 'store');
+    Route::post('/user/signin', 'signin');
+});
+
+
